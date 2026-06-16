@@ -32,10 +32,10 @@ RegFilter.sys
 [RegFilter.Service]
 DisplayName    = %service_desc%
 ServiceType    = 1            ; SERVICE_KERNEL_DRIVER
-StartType      = 0            ; Boot Start (SERVICE_BOOT_START)
+StartType      = 0            ; Boot Start
 ErrorControl   = 3            ; Critical
 ServiceBinary  = %12%\RegFilter.sys
-LoadOrderGroup = "Base"       ; safe + correct for registry callbacks
+LoadOrderGroup = "Base"      
 
 ;----------------------------------------------------------
 ; Localizable Strings
