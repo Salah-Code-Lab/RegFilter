@@ -1774,10 +1774,6 @@ static NTSTATUS RegistryCallback(
     default:
         return STATUS_SUCCESS;
     }
-
-    if (*InitSafeBootMode > 0)
-        return STATUS_SUCCESS;
-
     if (!registryObject)
         return STATUS_SUCCESS;
 
@@ -2018,8 +2014,13 @@ NTSTATUS DriverEntry(
 )
 {
     UNREFERENCED_PARAMETER(RegistryPath);
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS status;
 
+    if (InitSafeBootMode != NULL && *InitSafeBootMode != 0) {
+        DriverObject->DriverUnload = DriverUnload;
+        return STATUS_SUCCESS;
+    }
+    
     // Unified protections
     status = InitializeProtections();
     if (!NT_SUCCESS(status))
@@ -2106,12 +2107,7 @@ NTSTATUS DriverEntry(
         ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READONLY, &oldProtect);
     }
 
-    // Register unload last only reachable if everything succeeded
-    // This is to prevent Malicious unloads in normal mode 
-    // though the Other build RegFilter can be Unloaded Manually
-    if (*InitSafeBootMode > 0)
-        DriverObject->DriverUnload = DriverUnload;
-    else
+
         DriverObject->DriverUnload = NULL;
 
     return STATUS_SUCCESS;
