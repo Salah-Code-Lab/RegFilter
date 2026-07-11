@@ -33,13 +33,6 @@ attempts, falls back to primary token. Builds the full
 REGISTRY\USER\<SID>\... path and checks it against the 
 HKCU protection table.
 
-## Memory protection
-
-After DriverEntry completes, ZwProtectVirtualMemory Flags the 
-protection tables as read only.
-On unload write permissions are restored before cleanup.
-Note: Sophisticated or Normal Attackers can still Bypass this quite Easily Actually
-
 ## Accountability
 
 I know this may be a bit obvious and I even forgot to write it, but an important and crucial thing to mention is Accountability. 
