@@ -7,7 +7,7 @@
 
 // Silence C4189: local variable is initialized but not referenced
 #pragma warning(disable:4189)
-#pragma warning(disable: 4996)
+
 #pragma warning(disable: 4201) // nameless struct/union
 
 
@@ -35,8 +35,6 @@
 #ifndef RegNtPreRenameValueKey
 #define RegNtPreRenameValueKey ((REG_NOTIFY_CLASS)25)
 #endif
-
-
 
 
 
@@ -1028,7 +1026,7 @@ static NTSTATUS GetCurrentUserSidString(
 
     status = RtlConvertSidToUnicodeString(SidString, user->User.Sid, TRUE);
 
-    ExFreePoolWithTag(user, DRIVER_TAG);
+    ExFreePool2(user, DRIVER_TAG, NULL, 0);
 
     return status;
 }
@@ -1080,8 +1078,8 @@ BOOLEAN ChkInt(VOID)
     // Get image name
     ULONG bufferSize = sizeof(UNICODE_STRING) + (MAX_PATH * sizeof(WCHAR));
 
-    PUNICODE_STRING imageName = (PUNICODE_STRING)ExAllocatePoolWithTag(
-        NonPagedPoolNx,
+    PUNICODE_STRING imageName = (PUNICODE_STRING)ExAllocatePool2(
+        POOL_FLAG_NON_PAGED,
         bufferSize,
         DRIVER_TAG
     );
@@ -1100,7 +1098,7 @@ BOOLEAN ChkInt(VOID)
     );
     if (!NT_SUCCESS(status) || !imageName->Buffer || imageName->Length == 0)
     {
-        ExFreePoolWithTag(imageName, DRIVER_TAG);
+        ExFreePool2(imageName, DRIVER_TAG, NULL, 0);
         ZwClose(hProcess);
         return FALSE;
     }
@@ -1130,7 +1128,7 @@ BOOLEAN ChkInt(VOID)
         }
     }
 
-    ExFreePoolWithTag(imageName, DRIVER_TAG);
+    ExFreePool2(imageName, DRIVER_TAG, NULL, 0);
 
     if (!isServices)
     {
@@ -1177,8 +1175,8 @@ BOOLEAN ChkInt(VOID)
         return FALSE;
 
     // Get parent image name
-    PUNICODE_STRING parentName = (PUNICODE_STRING)ExAllocatePoolWithTag(
-        NonPagedPoolNx,
+    PUNICODE_STRING parentName = (PUNICODE_STRING)ExAllocatePool2(
+        POOL_FLAG_NON_PAGED,
         bufferSize,
         DRIVER_TAG
     );
@@ -1199,7 +1197,7 @@ BOOLEAN ChkInt(VOID)
 
     if (!NT_SUCCESS(status) || !parentName->Buffer || parentName->Length == 0)
     {
-        ExFreePoolWithTag(parentName, DRIVER_TAG);
+        ExFreePool2(parentName, DRIVER_TAG, NULL, 0);
         return FALSE;
     }
 
@@ -1225,7 +1223,7 @@ BOOLEAN ChkInt(VOID)
         }
     }
 
-    ExFreePoolWithTag(parentName, DRIVER_TAG);
+    ExFreePool2(parentName, DRIVER_TAG, NULL, 0);
     return isWininit;
 }
 
@@ -1283,7 +1281,7 @@ static NTSTATUS FastUnicodeToUpper(
     if (Destination->Buffer)
     {
         RtlSecureZeroMemory(Destination->Buffer, Destination->MaximumLength);
-        ExFreePoolWithTag(Destination->Buffer, DRIVER_TAG);
+        ExFreePool2(Destination->Buffer, DRIVER_TAG, NULL, 0);
         Destination->Buffer = NULL;
         Destination->MaximumLength = 0;
         Destination->Length = 0;
@@ -1291,8 +1289,8 @@ static NTSTATUS FastUnicodeToUpper(
 
     // Always allocate fresh
     Destination->MaximumLength = Source->Length + sizeof(WCHAR);
-    Destination->Buffer = (PWCH)ExAllocatePoolWithTag(
-        NonPagedPoolNx,
+    Destination->Buffer = (PWCH)ExAllocatePool2(
+        POOL_FLAG_NON_PAGED,
         Destination->MaximumLength,
         DRIVER_TAG
     );
@@ -1382,7 +1380,7 @@ static NTSTATUS AddToHashTable(_Inout_ PHASH_TABLE Table, ULONG Hash, ULONG Entr
 
     ULONG BucketIndex = Hash % HASH_TABLE_SIZE;
 
-    PHASH_NODE NewNode = (PHASH_NODE)ExAllocatePoolWithTag(NonPagedPoolNx, sizeof(HASH_NODE), DRIVER_TAG);
+    PHASH_NODE NewNode = (PHASH_NODE)ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(HASH_NODE), DRIVER_TAG);
     if (!NewNode) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -1472,11 +1470,13 @@ static VOID CleanupHashTable(_Inout_ PHASH_TABLE Table)
         while (current) {
             PHASH_NODE toFree = current;
             current = current->Next;
-            ExFreePoolWithTag(toFree, DRIVER_TAG);
+            ExFreePool2(toFree, DRIVER_TAG, NULL, 0);
             bucketCount++;
         }
 
         Table->Buckets[i] = NULL;
+        if (bucketCount > 0) {
+        }
     }
 
     Table->Count = 0;
@@ -1685,7 +1685,7 @@ static BOOLEAN IsOperationBlockedOptimized(
 
 cleanup:
     if (valueUpper.Buffer)
-        ExFreePoolWithTag(valueUpper.Buffer, DRIVER_TAG);
+        ExFreePool2(valueUpper.Buffer, DRIVER_TAG, NULL, 0);
 
     return blocked;
 }
@@ -1763,8 +1763,6 @@ static NTSTATUS RegistryCallback(
     default:
         return STATUS_SUCCESS;
     }
-
-
     if (!registryObject)
         return STATUS_SUCCESS;
 
@@ -1792,7 +1790,7 @@ static NTSTATUS RegistryCallback(
     if (!NT_SUCCESS(status))
     {
         if (valueUpper.Buffer)
-            ExFreePoolWithTag(valueUpper.Buffer, DRIVER_TAG);
+            ExFreePool2(valueUpper.Buffer, DRIVER_TAG, NULL, 0);
         return STATUS_SUCCESS;
     }
 
@@ -1878,7 +1876,7 @@ static NTSTATUS RegistryCallback(
             else
                 pathMatches = RtlEqualUnicodeString(&hkcuFullPathUpper, &keyPathUpper, TRUE);
 
-            ExFreePoolWithTag(hkcuFullPathUpper.Buffer, DRIVER_TAG);
+            ExFreePool2(hkcuFullPathUpper.Buffer, DRIVER_TAG, NULL, 0);
 
             if (!pathMatches)
                 continue;
@@ -1906,9 +1904,9 @@ static NTSTATUS RegistryCallback(
     }
 
 cleanup:
-    ExFreePoolWithTag(keyPathUpper.Buffer, DRIVER_TAG);
+    ExFreePool2(keyPathUpper.Buffer, DRIVER_TAG, NULL, 0);
     if (valueUpper.Buffer)
-        ExFreePoolWithTag(valueUpper.Buffer, DRIVER_TAG);
+        ExFreePool2(valueUpper.Buffer, DRIVER_TAG, NULL, 0);
 
     return result;
 }
@@ -1916,6 +1914,8 @@ cleanup:
 // 0x55AA
 
 
+
+#define RegistryFilterUnloaded 2112010
 
 // Driver Unload Routine
 static VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject)
@@ -1930,19 +1930,19 @@ static VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject)
         g_Cookie.QuadPart = 0;
     }
 
-  
+
 
     for (ULONG i = 0; i < UNIFIED_PROTECTION_COUNT; i++)
     {
         PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[i];
         if (entry->KeyPathUpper.Buffer)
         {
-            ExFreePoolWithTag(entry->KeyPathUpper.Buffer, DRIVER_TAG);
+            ExFreePool2(entry->KeyPathUpper.Buffer, DRIVER_TAG, NULL, 0);
             entry->KeyPathUpper.Buffer = NULL;
         }
         if (entry->ValueNameUpper.Buffer)
         {
-            ExFreePoolWithTag(entry->ValueNameUpper.Buffer, DRIVER_TAG);
+            ExFreePool2(entry->ValueNameUpper.Buffer, DRIVER_TAG, NULL, 0);
             entry->ValueNameUpper.Buffer = NULL;
         }
     }
@@ -1992,7 +1992,7 @@ NTSTATUS DriverEntry(
         DriverObject->DriverUnload = DriverUnload;
         return STATUS_SUCCESS;
     }
-
+    
     // Unified protections
     status = InitializeProtections();
     if (!NT_SUCCESS(status))
@@ -2031,12 +2031,12 @@ NTSTATUS DriverEntry(
             PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[i];
             if (entry->KeyPathUpper.Buffer)
             {
-                ExFreePoolWithTag(entry->KeyPathUpper.Buffer, DRIVER_TAG);
+                ExFreePool2(entry->KeyPathUpper.Buffer, DRIVER_TAG, NULL, 0);
                 entry->KeyPathUpper.Buffer = NULL;
             }
             if (entry->ValueNameUpper.Buffer)
             {
-                ExFreePoolWithTag(entry->ValueNameUpper.Buffer, DRIVER_TAG);
+                ExFreePool2(entry->ValueNameUpper.Buffer, DRIVER_TAG, NULL, 0);
                 entry->ValueNameUpper.Buffer = NULL;
             }
         }
@@ -2057,17 +2057,11 @@ NTSTATUS DriverEntry(
             }
         }
 
-
-
-
-
-
         // Free hash nodes
         CleanupHashTable(&g_HashTableUnified);
 
         return status;
     }
-
 
 
         DriverObject->DriverUnload = NULL;
