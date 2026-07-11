@@ -39,16 +39,7 @@
 
 
 
-NTSYSAPI
-NTSTATUS
-NTAPI
-ZwProtectVirtualMemory(
-    HANDLE ProcessHandle,
-    PVOID* BaseAddress,
-    PSIZE_T RegionSize,
-    ULONG NewProtect,
-    PULONG OldProtect
-);
+
 
 NTSYSAPI
 NTSTATUS
@@ -1945,24 +1936,6 @@ static VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject)
         g_Cookie.QuadPart = 0;
     }
 
-    {
-        PVOID base = (PVOID)g_UnifiedProtections;
-        SIZE_T size = sizeof(g_UnifiedProtections);
-        ULONG oldProtect;
-        ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READWRITE, &oldProtect);
-
-        base = (PVOID)g_HKCUProtections;
-        size = sizeof(g_HKCUProtections);
-        ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READWRITE, &oldProtect);
-
-        base = (PVOID)g_ForbiddenHivePaths;
-        size = sizeof(g_ForbiddenHivePaths);
-        ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READWRITE, &oldProtect);
-
-        base = (PVOID)&g_Cookie;
-        size = sizeof(g_Cookie);
-        ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READWRITE, &oldProtect);
-    }
 
     for (ULONG i = 0; i < UNIFIED_PROTECTION_COUNT; i++)
     {
@@ -2090,21 +2063,7 @@ NTSTATUS DriverEntry(
         return status;
     }
 
-    // Lock tables to read-only after all writes are complete
-    {
-        PVOID base = (PVOID)g_UnifiedProtections;
-        SIZE_T size = sizeof(g_UnifiedProtections);
-        ULONG oldProtect;
-        ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READONLY, &oldProtect);
 
-        base = (PVOID)g_HKCUProtections;
-        size = sizeof(g_HKCUProtections);
-        ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READONLY, &oldProtect);
-
-        base = (PVOID)g_ForbiddenHivePaths;
-        size = sizeof(g_ForbiddenHivePaths);
-        ZwProtectVirtualMemory(ZwCurrentProcess(), &base, &size, PAGE_READONLY, &oldProtect);
-    }
 
     // Register unload last only reachable if everything succeeded
     // This is to prevent Malicious unloads in normal mode 
