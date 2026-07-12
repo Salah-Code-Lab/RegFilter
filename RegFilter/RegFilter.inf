@@ -1,45 +1,72 @@
+;
 ; RegFilter.inf
 
-
 [Version]
-Signature   = "$Windows NT$"
-Class       = System
-ClassGUID   = {4D36E97D-E325-11CE-BFC1-08002BE10318}
-Provider    = %sifps%
-DriverVer   = 12/12/2025,1.0.0.0
-CatalogFile = RegFilter.cat
+Signature="$WINDOWS NT$"
+Class=System
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=%ProviderName%
+CatalogFile=RegFilter.cat
+DriverVer=07/12/2026,1.0.0.0
+PnpLockdown=1
+
+[SourceDisksNames]
+1 = %DiskName%,,,
+
+[SourceDisksFiles]
+RegFilter.sys = 1,,
 
 
-; General Installation
+; Destination Directories
 
-
-[DefaultInstall]
-CopyFiles = DriverCopy
-
-[DefaultInstall.Services]
-AddService = RegFilter, 0x00000002, RegFilter.Service
 
 [DestinationDirs]
-DriverCopy = 12  
+DefaultDestDir = 13
+RegFilter.DriverFiles = 13
 
-[DriverCopy]
+
+; Architecture-decorated DefaultInstall (Primitive Driver)
+
+
+[DefaultInstall.NTamd64]
+CopyFiles = RegFilter.DriverFiles
+
+[DefaultInstall.NTamd64.Services]
+AddService = RegFilter,,RegFilter.Service
+
+[DefaultInstall.NTarm64]
+CopyFiles = RegFilter.DriverFiles
+
+[DefaultInstall.NTarm64.Services]
+AddService = RegFilter,,RegFilter.Service
+
+
+; File Copy Section
+
+
+[RegFilter.DriverFiles]
 RegFilter.sys
 
-; Service Definition
+
+; Service Installation
 
 
 [RegFilter.Service]
-DisplayName    = %service_desc%
-ServiceType    = 1            ; SERVICE_KERNEL_DRIVER
-StartType      = 0            ; Boot Start (SERVICE_BOOT_START)
-ErrorControl   = 3            ; Critical
-ServiceBinary  = %12%\RegFilter.sys
-LoadOrderGroup = "Base"       
+DisplayName    = %ServiceName%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 0               ; SERVICE_BOOT_START
+ErrorControl   = 3               ; SERVICE_ERROR_CRITICAL
+ServiceBinary  = %13%\RegFilter.sys
+LoadOrderGroup = "FSFilter Activity Monitor"
+AddReg         = RegFilter.ServiceAddReg
 
+[RegFilter.ServiceAddReg]
+HKR,"Parameters","Altitude",0x00000000,"327999"
 
-; Localizable Strings
+; Strings
 
 
 [Strings]
-sifps        = "SIFPS"
-service_desc = "Registry Protection Filter Driver"
+ProviderName = "SIFPS"
+ServiceName  = "RegFilter Registry Protection Driver"
+DiskName     = "RegFilter Installation Disk"
