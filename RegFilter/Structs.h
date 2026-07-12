@@ -39,7 +39,20 @@ typedef struct _REGISTRY_PROTECTION_ENTRY {
 //   5. Do not add System Critical Entries since these will cause (0x7B, 0xEF, etc etc)
 //   if you need to add system critical paths but protect them from userland put them in the g_ForbiddenHivePaths array
 //   But even then Expect system Destabliziation and other side effects
-// ============================================================
+// Examples: 
+// This is completely Safe:
+// \REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+// may break some installs but wont break them completely they will still be functional 
+// NOT SAFE: 
+// \REGISTRY\MACHINE\SYSTEM\CurrentControlSet\Services\ (And its symbolic link for it to actually be blocked)
+// that way the OS may fail the mount the System hive (0x7B)
+// the difference between here and g_ForbiddenHivePaths is:
+// This path here doesn't differnate between Kernel callers and User callers it don't care 
+// g_ForbiddenHivePaths because it differnates between callers you can absoloutely do it 
+// i am already doing it but it may cause some false positives not some but a lot so play your cards right
+// if it is a system critical path that you know nothing in Userland touches add it to g_ForbiddenHivePaths but it may still cause 
+// Side Effects
+
 
 
 static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
