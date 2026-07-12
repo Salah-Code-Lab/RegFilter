@@ -24,6 +24,22 @@ typedef struct _REGISTRY_PROTECTION_ENTRY {
     ULONG Hash;
 } REGISTRY_PROTECTION_ENTRY, * PREGISTRY_PROTECTION_ENTRY;
 
+// \./ \./ \./ \./ \./ \./ \./ \./ \./
+// REGFILTER PROTECTION POLICY 
+// /.\ /.\ /.\ /.\ /.\ /.\ /.\ /.\ /.\
+// This is a DEMONSTRATION policy. It blocks aggressively.
+// if not edited accordingly, it will
+// destabilize Windows Explorer and other shell components.
+// so
+// Before deployment:
+//   1. Remove entries that aren't needed by your Environment
+//   2. Add entries for the targetted paths
+//   3. Test symbolic link paths (WOW6432Node, HKCU aliases, CurrentControlSet, ControlSet001)
+//   4. Verify in VM: expect shell breakage if too aggressive
+//   5. Do not add System Critical Entries since these will cause (0x7B, 0xEF, etc etc)
+//   if you need to add system critical paths but protect them from userland put them in the g_ForbiddenHivePaths array
+//   But even then Expect system Destabliziation and other side effects
+// ============================================================
 
 
 static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
@@ -213,7 +229,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// Image File Execution Options — debugger hijack
+// Image File Execution Options â€” debugger hijack
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
@@ -316,7 +332,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// Non-policy Defender Exclusions — operational path
+// Non-policy Defender Exclusions â€” operational path
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
@@ -373,7 +389,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// HVCI — Hypervisor Protected Code Integrity
+// HVCI â€” Hypervisor Protected Code Integrity
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard"),
 .ValueName = RTL_CONSTANT_STRING(L"EnableVirtualizationBasedSecurity"),
@@ -406,7 +422,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// LSA Protection — RunAsPPL
+// LSA Protection â€” RunAsPPL
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Lsa"),
 .ValueName = RTL_CONSTANT_STRING(L"RunAsPPL"),
