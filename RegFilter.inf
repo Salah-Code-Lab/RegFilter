@@ -1,0 +1,74 @@
+;
+; RegFilter.inf
+; Registry Protection Driver - Primitive Driver INF
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=%ProviderName%
+CatalogFile=RegFilter.cat
+DriverVer=07/12/2026,1.0.0.0
+PnpLockdown=1
+
+[SourceDisksNames]
+1 = %DiskName%,,,
+
+[SourceDisksFiles]
+RegFilter.sys = 1,,
+
+;====================================================
+; Destination Directories
+;====================================================
+
+[DestinationDirs]
+DefaultDestDir = 13
+RegFilter.DriverFiles = 13
+
+;====================================================
+; Architecture-decorated DefaultInstall (Primitive Driver)
+;====================================================
+
+[DefaultInstall.NTamd64]
+CopyFiles = RegFilter.DriverFiles
+
+[DefaultInstall.NTamd64.Services]
+AddService = RegFilter,,RegFilter.Service
+
+[DefaultInstall.NTarm64]
+CopyFiles = RegFilter.DriverFiles
+
+[DefaultInstall.NTarm64.Services]
+AddService = RegFilter,,RegFilter.Service
+
+
+; File Copy Section
+
+
+[RegFilter.DriverFiles]
+RegFilter.sys
+
+
+; Service Installation
+
+
+[RegFilter.Service]
+DisplayName    = %ServiceName%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 0               ; SERVICE_BOOT_START
+ErrorControl   = 3               ; SERVICE_ERROR_CRITICAL
+ServiceBinary  = %13%\RegFilter.sys
+LoadOrderGroup = "FSFilter Activity Monitor"
+AddReg         = RegFilter.ServiceAddReg
+
+[RegFilter.ServiceAddReg]
+HKR,"Parameters","Altitude",0x00000000,"327999"
+
+; Strings
+
+
+[Strings]
+ProviderName = "SIFPS"
+ServiceName  = "RegFilter Registry Protection Driver"
+DiskName     = "RegFilter Installation Disk"
