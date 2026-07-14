@@ -114,7 +114,9 @@ the driver won't be Optimized further.<br>
 since it is already fast gaining a maximum response time of Mere microseconds.<br>
 These tests were conducted with the Win11 Version and not the Win10 Version<br>
 oh, i almost forgot the build had been slightly edited and the flags 
-/Oy (Omit Frame Pointers), /O2 (Maxamize Speed), /Ot (favor speed)
+/Oy (Omit Frame Pointers), /O2 (Maxamize Speed), /Ot (favor speed)<br>
+from these testings the driver is roughly ~5x times to ~10x times faster in response than Other EDR solutions<br>
+but EDR solutions does have some other solutions that are complete and not just compound unlike RegFilter which is specialized in CM's subsystem only
 
 <mark>To Conduct this test here is how you can set the Environment</mark>
 1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
