@@ -116,7 +116,9 @@ These tests were conducted with the Win11 Version and not the Win10 Version<br>
 oh, i almost forgot the build had been slightly edited and the flags 
 /Oy (Omit Frame Pointers), /O2 (Maxamize Speed), /Ot (favor speed)<br>
 from these testings the driver is roughly ~5x times to ~10x times faster in response than Other EDR solutions<br>
-but EDR solutions does have some other solutions that are complete and not just compound unlike RegFilter which is specialized in CM's subsystem only
+but EDR solutions does have some other solutions that are complete and not just compound unlike RegFilter which is specialized in CM's subsystem only<br>
+This was tested on a Custom Executable that writes constantly with a total of 128 threads 64 for HKLM 64 for HKCU 
+the tool will not be published for obvious reasons (Abuse, DoS, Other Malicious Usage)
 
 <mark>To Conduct this test here is how you can set the Environment</mark>
 1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
