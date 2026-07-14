@@ -99,6 +99,29 @@ To actually Run the Driver In Windows Ensure
 That test signing is on:
 bcdedit /set testsigning on
 
+
+## Additional Info: 
+On a 6 Core VM with Hyper-V on host Off<br>
+with Virtualization of CPU Counters 
+RegFilter can achieve a max of 80k Reg Operations per second<br>
+the silicon in that test is the Bottle Neck not the driver
+tests show the limit of RegFilter which had been tested on a Core i9 14900HX machine with 32 Logical Processors<br>
+is <code>140k</code> Reg Ops per second, without utilizing the full Capabilities of the CPU which indicates The driver this time is the bottleneck<br>
+the driver won't be Optimized further.<br>
+since it is already fast gaining a maximum response time of Mere microseconds.<br>
+
+<mark>To Conduct this test here is how you can set the Environment</mark>
+1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
+2. Hyper-V must be disabled on Host because it was a Limiter for VMWare, the results will be different if Hyper-V is enabled on Host.<br>
+3. The VM Specs Were:<br>
+<code>CPU</code>: Optional Depending on your Choice, My Testings used 6 cores as my main machine and the other was borrowed and set accordingly
+<code>RAM</code>: 8GB can be less though
+<code>Virtualized CPU Counters</code>: True (needs Hyper-V on host OFF)
+
+<mark>If you need any assistance please Contact me on session Don't hesitate in asking me any questions about the driver(s)<br>
+if you find any issues with the driver please give me a heads up and place an issue on the repo Thanks</mark>
+<code>056bf8ea1a057b4f351d8b651944252cd4d88416ce6c11761f0c406f228a302301</code>
+
 ## Author
 
 Sal.
