@@ -133,6 +133,24 @@ it would be pretty much appreciated
 <code>RAM</code>: 8GB can be less though<br>
 <code>Virtualized CPU Counters</code>: True (needs Hyper-V on host OFF)<br>
 
+MATH TIME: 
+in the current data RegFilter Takes about 6.25 Microseconds lets say 7 microseconds 
+picture 3 scenarios 
+lets assume a Fast EDR, Typical EDR, Heavy EDR
+if a Fast EDR is ~50 microseconds fast, if a typical EDR is ~100 Microseconds fast, and if a Heavy EDR is ~250 Microseconds fast
+
+we are faster by <code>~0.85</code> orders of magnitude faster compared to fast EDRs
+<code>50/7 = 7.14 then we do Log10(7.14) which is equal to 0.85</code>
+
+for a Typical EDR 
+apply the same math 
+<code>100/7 = 14.3  Log10(14.3) = 1.15 ~1.15 orders of magnitude faster</code>
+
+for a Heavy EDR
+<code>	250/7 = 35.7  log10(35.7) = 1.55 ~1.55 orders of magnitude faster </code>
+
+> Note: These are all approx they are not true estimated values some EDRs are faster than 50Microsecond some are faster but you get the point
+
 <mark>If you need any assistance please Contact me on session Don't hesitate in asking me any questions about the driver(s)<br>
 if you find any issues with the driver please give me a heads up and place an issue on the repo Thanks</mark>
 <code>056bf8ea1a057b4f351d8b651944252cd4d88416ce6c11761f0c406f228a302301</code>
