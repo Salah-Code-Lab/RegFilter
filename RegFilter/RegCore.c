@@ -1,4 +1,4 @@
-﻿#include "Structs.h"
+#include "Structs.h"
 
 
 
@@ -55,8 +55,7 @@ BOOLEAN ChkInt(VOID)
     // Get image name
     ULONG bufferSize = sizeof(UNICODE_STRING) + (MAX_PATH * sizeof(WCHAR));
 
-    PUNICODE_STRING imageName = (PUNICODE_STRING)ExAllocatePool2(
-        POOL_FLAG_NON_PAGED,
+    PUNICODE_STRING imageName = (PUNICODE_STRING)POOL_ALLOC(
         bufferSize,
         DRIVER_TAG
     );
@@ -75,7 +74,7 @@ BOOLEAN ChkInt(VOID)
     );
     if (!NT_SUCCESS(status) || !imageName->Buffer || imageName->Length == 0)
     {
-        ExFreePool2(imageName, DRIVER_TAG, NULL, 0);
+        POOL_FREE(imageName, DRIVER_TAG);
         ZwClose(hProcess);
         return FALSE;
     }
@@ -105,7 +104,7 @@ BOOLEAN ChkInt(VOID)
         }
     }
 
-    ExFreePool2(imageName, DRIVER_TAG, NULL, 0);
+    POOL_FREE(imageName, DRIVER_TAG);
 
     if (!isServices)
     {
@@ -152,8 +151,7 @@ BOOLEAN ChkInt(VOID)
         return FALSE;
 
     // Get parent image name
-    PUNICODE_STRING parentName = (PUNICODE_STRING)ExAllocatePool2(
-        POOL_FLAG_NON_PAGED,
+    PUNICODE_STRING parentName = (PUNICODE_STRING)POOL_ALLOC(
         bufferSize,
         DRIVER_TAG
     );
@@ -174,7 +172,7 @@ BOOLEAN ChkInt(VOID)
 
     if (!NT_SUCCESS(status) || !parentName->Buffer || parentName->Length == 0)
     {
-        ExFreePool2(parentName, DRIVER_TAG, NULL, 0);
+        POOL_FREE(parentName, DRIVER_TAG);
         return FALSE;
     }
 
@@ -200,7 +198,7 @@ BOOLEAN ChkInt(VOID)
         }
     }
 
-    ExFreePool2(parentName, DRIVER_TAG, NULL, 0);
+    POOL_FREE(parentName, DRIVER_TAG);
     return isWininit;
 }
 
@@ -374,7 +372,7 @@ static BOOLEAN IsOperationBlockedOptimized(
 
 cleanup:
     if (valueUpper.Buffer)
-        ExFreePool2(valueUpper.Buffer, DRIVER_TAG, NULL, 0);
+       POOL_FREE(valueUpper.Buffer, DRIVER_TAG);
 
     return blocked;
 }
@@ -483,7 +481,7 @@ static NTSTATUS RegistryCallback(
     if (!NT_SUCCESS(status))
     {
         if (valueUpper.Buffer)
-            ExFreePool2(valueUpper.Buffer, DRIVER_TAG, NULL, 0);
+            POOL_FREE(valueUpper.Buffer, DRIVER_TAG);
         return STATUS_SUCCESS;
     }
 
@@ -569,7 +567,7 @@ static NTSTATUS RegistryCallback(
             else
                 pathMatches = RtlEqualUnicodeString(&hkcuFullPathUpper, &keyPathUpper, TRUE);
 
-            ExFreePool2(hkcuFullPathUpper.Buffer, DRIVER_TAG, NULL, 0);
+            POOL_FREE(hkcuFullPathUpper.Buffer, DRIVER_TAG);
 
             if (!pathMatches)
                 continue;
@@ -597,9 +595,9 @@ static NTSTATUS RegistryCallback(
     }
 
 cleanup:
-    ExFreePool2(keyPathUpper.Buffer, DRIVER_TAG, NULL, 0);
+    POOL_FREE(keyPathUpper.Buffer, DRIVER_TAG);
     if (valueUpper.Buffer)
-        ExFreePool2(valueUpper.Buffer, DRIVER_TAG, NULL, 0);
+        POOL_FREE(valueUpper.Buffer, DRIVER_TAG);
 
     return result;
 }
@@ -626,12 +624,12 @@ static VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject)
         PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[i];
         if (entry->KeyPathUpper.Buffer)
         {
-            ExFreePool2(entry->KeyPathUpper.Buffer, DRIVER_TAG, NULL, 0);
+            POOL_FREE(entry->KeyPathUpper.Buffer, DRIVER_TAG);
             entry->KeyPathUpper.Buffer = NULL;
         }
         if (entry->ValueNameUpper.Buffer)
         {
-            ExFreePool2(entry->ValueNameUpper.Buffer, DRIVER_TAG, NULL, 0);
+            POOL_FREE(entry->ValueNameUpper.Buffer, DRIVER_TAG);
             entry->ValueNameUpper.Buffer = NULL;
         }
     }
@@ -717,12 +715,12 @@ NTSTATUS DriverEntry(
             PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[i];
             if (entry->KeyPathUpper.Buffer)
             {
-                ExFreePool2(entry->KeyPathUpper.Buffer, DRIVER_TAG, NULL, 0);
+                POOL_FREE(entry->KeyPathUpper.Buffer, DRIVER_TAG);
                 entry->KeyPathUpper.Buffer = NULL;
             }
             if (entry->ValueNameUpper.Buffer)
             {
-                ExFreePool2(entry->ValueNameUpper.Buffer, DRIVER_TAG, NULL, 0);
+                POOL_FREE(entry->ValueNameUpper.Buffer, DRIVER_TAG);
                 entry->ValueNameUpper.Buffer = NULL;
             }
         }
