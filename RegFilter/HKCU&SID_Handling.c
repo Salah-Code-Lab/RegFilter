@@ -73,7 +73,7 @@ NTSTATUS GetCurrentUserSidString(
 
     status = RtlConvertSidToUnicodeString(SidString, user->User.Sid, TRUE);
 
-    ExFreePool2(user, DRIVER_TAG, NULL, 0);
+    POOL_FREE(user, DRIVER_TAG);
 
     return status;
 }
