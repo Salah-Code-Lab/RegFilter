@@ -109,7 +109,7 @@ with Virtualization of CPU Counters
 RegFilter can achieve a max of 80k Reg Operations per second<br>
 the silicon in that test is the Bottle Neck not the driver
 tests show the limit of RegFilter which had been tested on a Core i9 14900HX machine with 32 Logical Processors<br>
-<code>140k</code> Reg Ops per second, without utilizing the full Capabilities of the CPU which indicates The driver this time is the bottleneck<br>
+<code>160k</code> Reg Ops per second, without utilizing the full Capabilities of the CPU which indicates The driver this time is the bottleneck<br>
 the driver won't be Optimized further.<br>
 since it is already fast gaining a maximum response time of Mere microseconds.<br>
 These tests were conducted with the Win11 Version and not the Win10 Version<br>
@@ -118,7 +118,12 @@ oh, i almost forgot the build had been slightly edited and the flags
 from these testings the driver is roughly ~5x times to ~10x times faster in response than Other EDR solutions<br>
 but EDR solutions does have some other solutions that are complete and not just compound unlike RegFilter which is specialized in CM's subsystem only<br>
 This was tested on a Custom Executable that writes constantly with a total of 128 threads 64 for HKLM 64 for HKCU 
-the tool will not be published for obvious reasons (Abuse, DoS, Other Malicious Usage)
+the tool will not be published for obvious reasons (Abuse, DoS, Other Malicious Usage)<br>
+for <code>cm.sys</code> testings show without the driver the maximum threshhold it can handle is 165k Reg Ops writes and deletes<br>
+but with the driver they are almost the same but with 5k reg op deduction which is 3.03% reduction in Registry Communication Reduction<br>
+but one thing to take into note is that the performance will get lower and lower due to heat but if anyone was able to prove me wrong i am willing to be wrong<br>
+because i had laptops not workstations so they are not the best in cooling even the <code>165k</code> max can be wrong so if anyone can test on a desktop 
+it would be pretty much appreciated
 
 <mark>To Conduct this test here is how you can set the Environment</mark>
 1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
