@@ -25,7 +25,7 @@
 
 
 #ifdef WIN10_BUILD
-#define POOL_ALLOC(flags, size, tag) ExAllocatePoolWithTag(NonPagedPoolNx, size, tag)
+#define POOL_ALLOC(size, tag) ExAllocatePoolWithTag(NonPagedPoolNx, size, tag)
 #define POOL_FREE(ptr, tag) ExFreePoolWithTag(ptr, tag)
 #else
 #define POOL_ALLOC(flags, size, tag) ExAllocatePool2(POOL_FLAG_NON_PAGED, size, tag)
