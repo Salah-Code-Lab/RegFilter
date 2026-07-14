@@ -111,11 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Structs.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="resource1.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="RegFilter.rc" />
   </ItemGroup>
   <ItemGroup>
     <Inf Include="RegFilter.inf" />
