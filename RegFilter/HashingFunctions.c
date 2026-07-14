@@ -17,7 +17,7 @@ NTSTATUS FastUnicodeToUpper(
     if (Destination->Buffer)
     {
         RtlSecureZeroMemory(Destination->Buffer, Destination->MaximumLength);
-        ExFreePool2(Destination->Buffer, DRIVER_TAG, NULL, 0);
+        POOL_FREE(Destination->Buffer, DRIVER_TAG);
         Destination->Buffer = NULL;
         Destination->MaximumLength = 0;
         Destination->Length = 0;
@@ -25,8 +25,7 @@ NTSTATUS FastUnicodeToUpper(
 
     // Always allocate fresh
     Destination->MaximumLength = Source->Length + sizeof(WCHAR);
-    Destination->Buffer = (PWCH)ExAllocatePool2(
-        POOL_FLAG_NON_PAGED,
+    Destination->Buffer = (PWCH)POOL_ALLOC(
         Destination->MaximumLength,
         DRIVER_TAG
     );
@@ -120,7 +119,7 @@ NTSTATUS AddToHashTable(_Inout_ PHASH_TABLE Table, ULONG Hash, ULONG EntryIndex)
 
     ULONG BucketIndex = Hash % HASH_TABLE_SIZE;
 
-    PHASH_NODE NewNode = (PHASH_NODE)ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(HASH_NODE), DRIVER_TAG);
+    PHASH_NODE NewNode = (PHASH_NODE) POOL_ALLOC(sizeof(HASH_NODE), DRIVER_TAG);
     if (!NewNode) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -257,7 +256,7 @@ VOID CleanupHashTable(_Inout_ PHASH_TABLE Table)
         while (current) {
             PHASH_NODE toFree = current;
             current = current->Next;
-            ExFreePool2(toFree, DRIVER_TAG, NULL, 0);
+            POOL_FREE(toFree, DRIVER_TAG);
             bucketCount++;
         }
 
