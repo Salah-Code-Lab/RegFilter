@@ -112,6 +112,7 @@ tests show the limit of RegFilter which had been tested on a Core i9 14900HX mac
 <code>140k</code> Reg Ops per second, without utilizing the full Capabilities of the CPU which indicates The driver this time is the bottleneck<br>
 the driver won't be Optimized further.<br>
 since it is already fast gaining a maximum response time of Mere microseconds.<br>
+These tests were conducted with the Win11 Version and not the Win10 Version
 
 <mark>To Conduct this test here is how you can set the Environment</mark>
 1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
