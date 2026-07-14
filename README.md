@@ -100,6 +100,9 @@ That test signing is on:
 bcdedit /set testsigning on
 
 
+
+
+
 ## Additional Info: 
 On a 6 Core VM with Hyper-V on host Off<br>
 with Virtualization of CPU Counters 
@@ -114,9 +117,9 @@ since it is already fast gaining a maximum response time of Mere microseconds.<b
 1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
 2. Hyper-V must be disabled on Host because it was a Limiter for VMWare, the results will be different if Hyper-V is enabled on Host.<br>
 3. The VM Specs Were:<br>
-<code>CPU</code>: Optional Depending on your Choice, My Testings used 6 cores as my main machine and the other was borrowed and set accordingly
-<code>RAM</code>: 8GB can be less though
-<code>Virtualized CPU Counters</code>: True (needs Hyper-V on host OFF)
+<code>CPU</code>: Optional Depending on your Choice, My Testings used 6 cores as my main machine and the other was borrowed and set accordingly<br>
+<code>RAM</code>: 8GB can be less though<br>
+<code>Virtualized CPU Counters</code>: True (needs Hyper-V on host OFF)<br>
 
 <mark>If you need any assistance please Contact me on session Don't hesitate in asking me any questions about the driver(s)<br>
 if you find any issues with the driver please give me a heads up and place an issue on the repo Thanks</mark>
