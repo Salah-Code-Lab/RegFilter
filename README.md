@@ -111,7 +111,7 @@ the silicon in that test is the Bottle Neck not the driver
 tests show the limit of RegFilter which had been tested on a Core i9 14900HX machine with 32 Logical Processors<br>
 <code>160k</code> Reg Ops per second, without utilizing the full Capabilities of the CPU which indicates The driver this time is the bottleneck<br>
 the driver won't be Optimized further.<br>
-since it is already fast gaining a maximum response time of Mere microseconds.<br>
+since it is already fast gaining a maximum response time of Mere microseconds (around 6.25 Microseconds though is not constantly consistant, it is user side not kernel side so it isn't accurate it includes CM aquiring locks time, returning to userland so userland API dominate while we want to focus on the driver Return time and not the whole Chain of execution but perhaps the driver responds in about 3 microseconds but i am unsure additional testing is needed).<br>
 These tests were conducted with the Win11 Version and not the Win10 Version<br>
 oh, i almost forgot the build had been slightly edited and the flags 
 /Oy (Omit Frame Pointers), /O2 (Maxamize Speed), /Ot (favor speed)<br>
