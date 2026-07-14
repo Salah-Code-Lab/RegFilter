@@ -24,6 +24,13 @@
 
 
 
+#ifdef WIN10_BUILD
+#define POOL_ALLOC(flags, size, tag) ExAllocatePoolWithTag(NonPagedPoolNx, size, tag)
+#define POOL_FREE(ptr, tag) ExFreePoolWithTag(ptr, tag)
+#else
+#define POOL_ALLOC(flags, size, tag) ExAllocatePool2(POOL_FLAG_NON_PAGED, size, tag)
+#define POOL_FREE(ptr, tag) ExFreePool2(ptr, tag, 0, 0)
+#endif
 
 
 
@@ -377,7 +384,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// Image File Execution Options — debugger hijack
+// Image File Execution Options Â— debugger hijack
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
@@ -480,7 +487,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// Non-policy Defender Exclusions — operational path
+// Non-policy Defender Exclusions Â— operational path
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
@@ -537,7 +544,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// HVCI — Hypervisor Protected Code Integrity
+// HVCI Â— Hypervisor Protected Code Integrity
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard"),
 .ValueName = RTL_CONSTANT_STRING(L"EnableVirtualizationBasedSecurity"),
@@ -570,7 +577,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .Hash = 0
 },
 
-// LSA Protection — RunAsPPL
+// LSA Protection Â— RunAsPPL
 {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Lsa"),
 .ValueName = RTL_CONSTANT_STRING(L"RunAsPPL"),
