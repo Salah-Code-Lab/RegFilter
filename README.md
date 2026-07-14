@@ -120,7 +120,7 @@ but EDR solutions does have some other solutions that are complete and not just 
 This was tested on a Custom Executable that writes constantly with a total of 128 threads 64 for HKLM 64 for HKCU 
 the tool will not be published for obvious reasons (Abuse, DoS, Other Malicious Usage)<br>
 for <code>cm.sys</code> testings show without the driver the maximum threshhold it can handle is 165k Reg Ops writes and deletes<br>
-but with the driver they are almost the same but with 5k reg op deduction which is 3.03% reduction in Registry Communication Reduction<br>
+but with the driver they are almost the same but with 5k reg op deduction which is 3.03% reduction in Registry throughput Reduction<br>
 but one thing to take into note is that the performance will get lower and lower due to heat but if anyone was able to prove me wrong i am willing to be wrong<br>
 because i had laptops not workstations so they are not the best in cooling even the <code>165k</code> max can be wrong so if anyone can test on a desktop 
 it would be pretty much appreciated
