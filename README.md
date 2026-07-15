@@ -137,7 +137,7 @@ MATH TIME:
 in the current data RegFilter Takes about 6.25 Microseconds lets say 7 microseconds 
 picture 3 scenarios 
 lets assume a Fast EDR, Typical EDR, Heavy EDR
-if a Fast EDR is ~50 microseconds fast, if a typical EDR is ~100 Microseconds fast, and if a Heavy EDR is ~250 Microseconds fast
+if a Fast EDR Registry Filter is ~50 microseconds fast, if a typical EDR Registry Filter is ~100 Microseconds fast, and if a Heavy EDR Registry Filter is ~250 Microseconds fast
 
 we are faster by <code>~0.85</code> orders of magnitude faster compared to fast EDRs
 <code>50/7 = 7.14 then we do Log10(7.14) which is equal to 0.85</code>
