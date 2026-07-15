@@ -696,7 +696,7 @@ NTSTATUS DriverEntry(
 
 
     UNICODE_STRING altitude = { 0 };
-    RtlInitUnicodeString(&altitude, L"327999");
+    RtlInitUnicodeString(&altitude, L"322000");
 
     status = CmRegisterCallbackEx(
         RegistryCallback,
