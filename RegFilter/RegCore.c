@@ -517,17 +517,6 @@ static NTSTATUS RegistryCallback(
         goto cleanup;
     }
 
-    // 3. ControlHiveAccess
-    BOOLEAN IsKernelCaller = (ExGetPreviousMode() == KernelMode);
-    BOOLEAN IsSystemCaller = ChkInt();
-
-    NTSTATUS hiveStatus = ControlHiveAccess(&keyPathUpper, opFlags, IsKernelCaller, IsSystemCaller);
-    if (!NT_SUCCESS(hiveStatus))
-    {
-        result = hiveStatus;
-        goto cleanup;
-    }
-
 
     // --- HKCU: resolve SID once, then loop ---
     {
