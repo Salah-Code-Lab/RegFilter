@@ -28,7 +28,7 @@
 #define POOL_ALLOC(size, tag) ExAllocatePoolWithTag(NonPagedPoolNx, size, tag)
 #define POOL_FREE(ptr, tag) ExFreePoolWithTag(ptr, tag)
 #else
-#define POOL_ALLOC(flags, size, tag) ExAllocatePool2(POOL_FLAG_NON_PAGED, size, tag)
+#define POOL_ALLOC(size, tag) ExAllocatePool2(POOL_FLAG_NON_PAGED, size, tag)
 #define POOL_FREE(ptr, tag) ExFreePool2(ptr, tag, 0, 0)
 #endif
 
