@@ -21,13 +21,13 @@ Stage 2 is a linear recursive scan for wildcard entries.
 These can't be hashed since the incoming path is longer than 
 the stored prefix. Only runs if stage 1 misses.
 
-Stage 3 is caller context. ChkInt() checks if the caller is 
+**REMOVED You Can Still Add it though** Stage 3 is caller context. ChkInt() checks if the caller is 
 PPL or Light PPL protected, or if it's services.exe parented 
 by wininit.exe. Trusted callers get through. Everyone else 
 goes through ControlHiveAccess which blocks userland writes 
 to the services hive entirely.
 
-Stage 4 is HKCU filtering. Resolves the caller SID from the 
+Stage 3-4 is HKCU filtering. Resolves the caller SID from the 
 thread impersonation token first to catch ImpersonateLoggedOnUser 
 attempts, falls back to primary token. Builds the full 
 REGISTRY\USER\<SID>\... path and checks it against the 
