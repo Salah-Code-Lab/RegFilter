@@ -107,8 +107,8 @@ bcdedit /set testsigning on
 On a 6 Core VM with Hyper-V on host Off<br>
 with Virtualization of CPU Counters 
 RegFilter can achieve a max of <code>86k</code> Reg Operations per second<br>
-the silicon in that test is the Bottle Neck not the driver
-tests show the limit of RegFilter which had been tested on a Core i9 14900HX machine with 32 Logical Processors<br>
+in that scenario the silicon in that test is the Bottle Neck not the driver
+other tests which were conducted on the "Beast" show the limit of RegFilter which had been tested on a Core i9 14900HX machine with 32 Logical Processors<br>
 <code>160k</code> Reg Ops per second, without utilizing the full Capabilities of the CPU<br>
 the driver won't be Optimized further.<br>
 since it is already fast gaining a maximum response time of Mere microseconds (around 6.25 Microseconds though is not constantly consistant, it is user side not kernel side so it isn't accurate it includes CM aquiring locks time, returning to userland so userland API dominate while we want to focus on the driver Return time and not the whole Chain of execution but perhaps the driver responds in about 3 microseconds but i am unsure additional testing is needed).<br>
