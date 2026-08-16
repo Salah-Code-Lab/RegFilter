@@ -1,14 +1,96 @@
 #include "Structs.h"
 
 
+/*
+Unused Or Depracated
+
+
+static BOOLEAN IsOperationBlockedRecursive(
+    _In_ PUNICODE_STRING Key,
+    _In_ ULONG OperationFlags
+)
+{
+
+    for (ULONG i = 0; i < UNIFIED_PROTECTION_COUNT; i++) {
+        PREGISTRY_PROTECTION_ENTRY e = &g_UnifiedProtections[i];
+
+        // Debug: log every entry that contains "RUN" anywhere
+        if (e->KeyPathUpper.Buffer && wcsstr(e->KeyPathUpper.Buffer, L"RUN")) {
+            BOOLEAN match = (e->Flags & PROTECT_FLAG_WILDCARD)
+                ? RtlPrefixUnicodeString(&e->KeyPathUpper, Key, TRUE)
+                : RtlEqualUnicodeString(&e->KeyPathUpper, Key, TRUE);
+            ULONG effective = e->Flags & ~(PROTECT_FLAG_WILDCARD | PROTECT_FLAG_SID);
+
+                i, &e->KeyPathUpper, Key,
+                (e->Flags & PROTECT_FLAG_WILDCARD) ? 1 : 0,
+                match, effective, OperationFlags,
+                (match && (effective & OperationFlags) != 0) ? 1 : 0);
+        }
+
+        if (!e->KeyPathUpper.Buffer)
+            continue;
+
+        BOOLEAN match = (e->Flags & PROTECT_FLAG_WILDCARD)
+            ? RtlPrefixUnicodeString(&e->KeyPathUpper, Key, TRUE)
+            : RtlEqualUnicodeString(&e->KeyPathUpper, Key, TRUE);
+
+        if (!match)
+            continue;
+
+        ULONG effective = e->Flags & ~(PROTECT_FLAG_WILDCARD | PROTECT_FLAG_SID);
+        if ((effective & OperationFlags) != 0)
+            return TRUE;
+    }
+
+    return FALSE;
+}
 
 
 
+static BOOLEAN IsOperationBlockedOptimized(
+    _In_ PUNICODE_STRING Key,
+    _In_opt_ PUNICODE_STRING Value,
+    _In_ ULONG Flags
+)
+{
+    if (!Key || Key->Length == 0)
+        return FALSE;
 
-// Get the SID of HKCU (i still have PTITS from this (PTITS: Post Trumatic IT Syndrome)) anyway lets get to it 
+    UNICODE_STRING valueUpper = { 0 };
+    PUNICODE_STRING valueForHash = NULL;
 
+    if (Value && Value->Buffer)
+    {
+        if (NT_SUCCESS(FastUnicodeToUpper(Value, &valueUpper)))
+            valueForHash = &valueUpper;
+    }
 
-// VBR, $MFT 
+    BOOLEAN blocked = FALSE;
+    ULONG keyHash = HashEntry(Key, valueForHash);
+    ULONG entryIndex = 0;
+
+    if (LookupHashTable(&g_HashTableUnified, keyHash, &entryIndex, Flags, valueForHash))
+    {
+        PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[entryIndex];
+        ULONG entryEffective = entry->Flags & ~(PROTECT_FLAG_WILDCARD | PROTECT_FLAG_SID);
+
+        if ((entryEffective & Flags) != 0)
+        {
+            blocked = TRUE;
+            goto cleanup;
+        }
+    }
+
+    // Hash table had no opinion
+    blocked = IsOperationBlockedRecursive(Key, Flags);
+
+cleanup:
+    if (valueUpper.Buffer)
+        POOL_FREE(valueUpper.Buffer, DRIVER_TAG);
+
+    return blocked;
+}
+
 
 BOOLEAN ChkInt(VOID)
 {
@@ -204,16 +286,127 @@ BOOLEAN ChkInt(VOID)
 
 
 
+NTSTATUS
+ControlHiveAccess(
+    _In_ PUNICODE_STRING CallerPathUpper,
+    _In_ ULONG OperationFlags,
+    _In_ BOOLEAN IsKernelCaller,
+    _In_ BOOLEAN IsSystemCaller
+)
+{
+    if (IsKernelCaller || IsSystemCaller)
+        return STATUS_SUCCESS;
+
+    if (!(OperationFlags & HIVE_FORBIDDEN_FLAGS))
+        return STATUS_SUCCESS;
+
+    for (ULONG i = 0; i < FORBIDDEN_HIVE_COUNT; i++)
+    {
+        if (RtlPrefixUnicodeString(&g_ForbiddenHivePaths[i], CallerPathUpper, TRUE))
+        {
+            DbgPrint("[RegF] Controlled Hive Access for Non System callers");
+            return STATUS_OBJECT_PATH_NOT_FOUND;
+        }
+    }
+
+    return STATUS_SUCCESS;
+}
 
 
 
 
 
 
+*/
+
+
+// Get the SID of HKCU (i still have PTITS from this (PTITS: Post Trumatic IT Syndrome)) anyway lets get to it 
+
+
+// VBR, $MFT 
 
 
 
 
+BOOLEAN ChkInt2(VOID)
+{
+    if (PsIsSystemThread(PsGetCurrentThread()) || ExGetPreviousMode() == KernelMode)
+        return TRUE;
+
+    PEPROCESS process = PsGetCurrentProcess();
+    if (!process)
+        return FALSE;
+
+    PS_PROTECTION protection = *PsGetProcessProtection(process);
+    if (protection.Type != PsProtectedTypeNone)
+        return TRUE;
+
+
+    // 3. Get Process Image Name without handles
+    PUNICODE_STRING imageName = NULL;
+    NTSTATUS status = SeLocateProcessImageName(process, &imageName);
+    if (!NT_SUCCESS(status) || !imageName || imageName->Length == 0)
+        return FALSE;
+
+    UNICODE_STRING devicePrefix = RTL_CONSTANT_STRING(L"\\Device\\HarddiskVolume");
+    UNICODE_STRING servicesExeSuffix = RTL_CONSTANT_STRING(L"\\Windows\\System32\\services.exe");
+    BOOLEAN isServices = FALSE;
+
+    if (RtlPrefixUnicodeString(&devicePrefix, imageName, TRUE))
+    {
+        if (imageName->Length >= servicesExeSuffix.Length)
+        {
+            UNICODE_STRING tail = {
+                servicesExeSuffix.Length,
+                servicesExeSuffix.Length,
+                (PWCH)((PUCHAR)imageName->Buffer + imageName->Length - servicesExeSuffix.Length)
+            };
+            isServices = RtlEqualUnicodeString(&tail, &servicesExeSuffix, TRUE);
+        }
+    }
+
+    ExFreePool(imageName); 
+
+    if (!isServices)
+        return FALSE;
+
+ 
+    HANDLE parentPid = PsGetProcessInheritedFromUniqueProcessId(process);
+    if (!parentPid)
+        return FALSE;
+
+    // 5. Lookup Parent Process directly by PID
+    PEPROCESS parentProcess = NULL;
+    status = PsLookupProcessByProcessId(parentPid, &parentProcess);
+    if (!NT_SUCCESS(status) || !parentProcess)
+        return FALSE;
+
+    PUNICODE_STRING parentName = NULL;
+    status = SeLocateProcessImageName(parentProcess, &parentName);
+    ObDereferenceObject(parentProcess); 
+
+    if (!NT_SUCCESS(status) || !parentName || parentName->Length == 0)
+        return FALSE;
+
+    UNICODE_STRING wininitExeSuffix = RTL_CONSTANT_STRING(L"\\Windows\\System32\\wininit.exe");
+    BOOLEAN isWininit = FALSE;
+
+    if (RtlPrefixUnicodeString(&devicePrefix, parentName, TRUE))
+    {
+        if (parentName->Length >= wininitExeSuffix.Length)
+        {
+            UNICODE_STRING tail = {
+                wininitExeSuffix.Length,
+                wininitExeSuffix.Length,
+                (PWCH)((PUCHAR)parentName->Buffer + parentName->Length - wininitExeSuffix.Length)
+            };
+            isWininit = RtlEqualUnicodeString(&tail, &wininitExeSuffix, TRUE);
+        }
+    }
+
+    ExFreePool(parentName);
+    return isWininit;
+}
 
 // Enderm@nch
 
@@ -240,6 +433,7 @@ static ULONG GetOperationFlags(
         return PROTECT_FLAG_MODIFY;
 
     case RegNtPreLoadKey:
+    case RegNtPostLoadKey:
         return 0;
 
     case RegNtPreCreateKey:
@@ -258,20 +452,27 @@ static ULONG GetOperationFlags(
     }
 }
 
+
+
 // 4e6f457363617065
+// Mercer
+// 446, 64, 2
+
+
 // to CREATE or MODIFY these paths. OS manages them exclusively via CM.
-
-
-
 NTSTATUS
-ControlHiveAccess(
-    _In_ PUNICODE_STRING CallerPathUpper,
-    _In_ ULONG OperationFlags,
-    _In_ BOOLEAN IsKernelCaller,
-    _In_ BOOLEAN IsSystemCaller
+ControlHiveAccessEx(
+    _In_ PUNICODE_STRING keyPathUpper,
+    _In_ ULONG OperationFlags
 )
 {
-    if (IsKernelCaller || IsSystemCaller)
+    BOOLEAN isKernel = (ExGetPreviousMode() == KernelMode);
+    BOOLEAN isSystem = PsIsSystemThread(PsGetCurrentThread());
+
+    if (isKernel || isSystem)
+        return STATUS_SUCCESS;
+
+    if (ChkInt2())
         return STATUS_SUCCESS;
 
     if (!(OperationFlags & HIVE_FORBIDDEN_FLAGS))
@@ -279,103 +480,17 @@ ControlHiveAccess(
 
     for (ULONG i = 0; i < FORBIDDEN_HIVE_COUNT; i++)
     {
-        if (RtlPrefixUnicodeString(&g_ForbiddenHivePaths[i], CallerPathUpper, TRUE))
+        if (RtlPrefixUnicodeString(&g_ForbiddenHivePaths[i], keyPathUpper, TRUE))
         {
+          
             return STATUS_OBJECT_PATH_NOT_FOUND;
         }
     }
 
     return STATUS_SUCCESS;
 }
-// Recurse
 
-static BOOLEAN IsOperationBlockedRecursive(
-    _In_ PUNICODE_STRING Key,
-    _In_ ULONG OperationFlags
-)
-{
-    if (!Key || Key->Length == 0)
-        return FALSE;
 
-    for (ULONG i = 0; i < UNIFIED_PROTECTION_COUNT; ++i)
-    {
-        PREGISTRY_PROTECTION_ENTRY e = &g_UnifiedProtections[i];
-
-        if (!e->KeyPathUpper.Buffer)
-            continue;
-
-        BOOLEAN match = FALSE;
-
-        if (e->Flags & PROTECT_FLAG_WILDCARD)
-        {
-            if (RtlPrefixUnicodeString(&e->KeyPathUpper, Key, TRUE))
-                match = TRUE;
-        }
-        else
-        {
-            if (RtlEqualUnicodeString(&e->KeyPathUpper, Key, TRUE))
-                match = TRUE;
-        }
-
-        if (!match)
-            continue;
-
-        ULONG effectiveFlags = e->Flags & ~(PROTECT_FLAG_WILDCARD | PROTECT_FLAG_SID);
-
-        if ((effectiveFlags & OperationFlags) != 0)
-        {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-// 446, 64, 2 
-
-static BOOLEAN IsOperationBlockedOptimized(
-    _In_ PUNICODE_STRING Key,
-    _In_opt_ PUNICODE_STRING Value,
-    _In_ ULONG Flags
-)
-{
-    if (!Key || Key->Length == 0)
-        return FALSE;
-
-    UNICODE_STRING valueUpper = { 0 };
-    PUNICODE_STRING valueForHash = NULL;
-
-    if (Value && Value->Buffer)
-    {
-        if (NT_SUCCESS(FastUnicodeToUpper(Value, &valueUpper)))
-            valueForHash = &valueUpper;
-    }
-
-    BOOLEAN blocked = FALSE;
-    ULONG keyHash = HashEntry(Key, valueForHash);
-    ULONG entryIndex = 0;
-
-    if (LookupHashTable(&g_HashTableUnified, keyHash, &entryIndex, Flags, valueForHash))
-    {
-        PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[entryIndex];
-        ULONG entryEffective = entry->Flags & ~(PROTECT_FLAG_WILDCARD | PROTECT_FLAG_SID);
-
-        if ((entryEffective & Flags) != 0)
-        {
-            blocked = TRUE;
-            goto cleanup;
-        }
-    }
-
-    // Hash table had no opinion
-    blocked = IsOperationBlockedRecursive(Key, Flags);
-
-cleanup:
-    if (valueUpper.Buffer)
-       POOL_FREE(valueUpper.Buffer, DRIVER_TAG);
-
-    return blocked;
-}
 
 extern PULONG InitSafeBootMode;
 
@@ -488,12 +603,22 @@ static NTSTATUS RegistryCallback(
     ULONG entryIndex = 0;
     NTSTATUS result = STATUS_SUCCESS;
 
+    
 
-
-    // 1. Hash table lookup Block regardless of caller if there's a hash match with relevant flags. This is the fastest check and
-    // catches exact matches immediately, which is ideal for common policies like DisableTaskMgr or AppInit_DLLs.
+    // O(1) Wildcard matching and Exact matching
+    //Exact match here
     ULONG keyHash = HashEntry(&keyPathUpper, valueForHash);
     BOOLEAN found = LookupHashTable(&g_HashTableUnified, keyHash, &entryIndex, opFlags, valueForHash);
+
+    // Wildcard Here
+    if (!found && valueForHash && valueForHash->Buffer)
+    {
+        ULONG keyHashWild = HashEntry(&keyPathUpper, NULL);
+        ULONG wildIndex = 0;
+        found = LookupHashTable(&g_HashTableUnified, keyHashWild, &wildIndex, opFlags, NULL);
+        if (found)
+            entryIndex = wildIndex;
+    }
 
     if (found)
     {
@@ -507,16 +632,16 @@ static NTSTATUS RegistryCallback(
         }
     }
 
-    // 2. Recursive scan Regardless of caller, this catches wildcard matches and any entries that were missed by the hash
-    // table due to hash collisions or if they were added without hashes (like during initialization failures).
-    // It's more expensive but necessary for comprehensive protection.
-    found = IsOperationBlockedRecursive(&keyPathUpper, opFlags);
-    if (found)
+
+    
+
+   status = ControlHiveAccessEx(&keyPathUpper, opFlags);
+    if (!NT_SUCCESS(status))
     {
-        result = STATUS_OBJECT_PATH_NOT_FOUND;
+        result = status;
         goto cleanup;
     }
-
+    
 
     // --- HKCU: resolve SID once, then loop ---
     {
@@ -590,7 +715,6 @@ cleanup:
 
     return result;
 }
-
 // 0x55AA
 
 
