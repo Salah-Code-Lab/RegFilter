@@ -13,18 +13,6 @@ Testing Results: Driver in the test Handled 127 Million Operations the test was 
 
 * Performance sustained improvement is around ~60% More than before 
 
-NOTE: 
-
-* After Doing some Adjustments to the Core count and amount 
-on 6 Cores in VMWare with no Hyper-V present 
-the Performance increase is about 60% And Not the 34-40% i assumed back then 
-And that Includes the new ChkInt2 and ControlHiveAccessEx that were implemented newly
-But i am still unsure of their Stability 
-so the New batch will be ran for about a another 100 Million Write Operations being targeted
-then Placement Optimizations will be done and then the Driver will be Published
-
-* MATH TIME section needs to be rewritten
-but i am already exhausted i had been addressing these issues and testing for long enough i will be back in a hour or two
 
 
 # RegFilter
