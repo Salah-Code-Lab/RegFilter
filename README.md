@@ -146,14 +146,8 @@ Now when the driver was tested i ran well more than 217 Million Operations they 
 Stability Shouldn't be an issue considering that Normally the OS does Maybe Hundreds of thousands in a day<br>
 so to out buffer the 217 Million you'd need Months unless if there was something that would act abnormally and i didn't account for it<br>
 as i said before i am not Megamind or Superman to account for every single possible Edge case in the World<br>
-
-From these tests, the driver is roughly 12x to 15x faster in response than fast EDR solutions, and 30x to 80x faster than typical or heavy EDR solutions.<br>
 Over ~60% increase in Response time than the old version of the driver<br>
 
-
-
-
-But EDR solutions have broader coverage they monitor the entire system, not just the Configuration Manager subsystem. RegFilter is specialized: it does one thing (registry protection) and does it with maximum efficiency. It is not a complete EDR replacement. It is a component that outperforms EDRs in its specific domain.
 
 This was tested on a custom executable that writes constantly with 128 threads (64 for HKLM, 64 for HKCU). The tool will not be published for obvious reasons (abuse, DoS, other malicious usage).
 
@@ -183,6 +177,7 @@ for a Heavy EDR
 <code>	250/7 = 35.7  log10(35.7) = 1.55 ~1.55 orders of magnitude faster </code>
 
 > Note: These are all approx they are not true estimated values some EDRs are faster than 50Microsecond some are faster but you get the point
+> PLUS EDRs are complete Solutions unlike RegFilter which works in one specific domain so the Comparison shouldn't be done but i did it anyway just to put the picture out there of how fast this piece of software actually is  
 
 <mark>If you need any assistance please Contact me on session Don't hesitate in asking me any questions about the driver(s)<br>
 if you find any issues with the driver please give me a heads up and place an issue on the repo Thanks</mark>
