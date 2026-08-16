@@ -2,7 +2,7 @@
 ## QoL fixes: Pending Publish after Verification
 ChkInt had been Enhanced to a better version 
 Fixed The Recursive Protections and it works 
-Wildcard Paths are now O(1) instead of O(n)
+Replaced recursive O(n) scan with dual-hash O(1) wildcard matching
 Less False Positives on the Services key now 
 Deletions via SCM work now 
 Addressed a Fix for Initialize Protections not looping correctly 
