@@ -159,25 +159,9 @@ This was tested on a custom executable that writes constantly with 128 threads (
 <code>RAM</code>: 8GB can be less though<br>
 <code>Virtualized CPU Counters</code>: True can be false as well i didn't notice that much of a difference across both(needs Hyper-V on host OFF)<br>
 
-MATH TIME: 
-According to the Benchmarks on the I5
-in the current data RegFilter Takes 7 microseconds to Respond 
-picture 3 scenarios 
-lets assume a Fast EDR, Typical EDR, Heavy EDR
-if a Fast EDR Registry Filter is ~50 microseconds fast, if a typical EDR Registry Filter is ~100 Microseconds fast, and if a Heavy EDR Registry Filter is ~250 Microseconds fast
 
-we are faster by <code>~0.85</code> orders of magnitude faster compared to fast EDRs
-<code>50/7 = 7.14 then we do Log10(7.14) which is equal to 0.85</code>
 
-for a Typical EDR 
-apply the same math 
-<code>100/7 = 14.3  Log10(14.3) = 1.15 ~1.15 orders of magnitude faster</code>
-
-for a Heavy EDR
-<code>	250/7 = 35.7  log10(35.7) = 1.55 ~1.55 orders of magnitude faster </code>
-
-> Note: These are all approx they are not true estimated values some EDRs are faster than 50Microsecond some are faster but you get the point
-> PLUS EDRs are complete Solutions unlike RegFilter which works in one specific domain so the Comparison shouldn't be done but i did it anyway just to put the picture out there of how fast this piece of software actually is  
+> some parts had been removed because i felt they were marketing i hate that i don't love that attitude so take it if you will RegFilter responds in the Single Digits in Microseconds
 
 <mark>If you need any assistance please Contact me on session Don't hesitate in asking me any questions about the driver(s)<br>
 if you find any issues with the driver please give me a heads up and place an issue on the repo Thanks</mark>
