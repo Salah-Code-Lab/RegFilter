@@ -46,8 +46,9 @@
 #endif
 
 
-
-
+/*
+Unused Prototype
+Uncomment when restoring ChkInt();
 
 
 NTSYSAPI
@@ -60,6 +61,12 @@ ZwQueryInformationProcess(
     _In_ ULONG ProcessInformationLength,
     _Out_opt_ PULONG ReturnLength
 );
+
+
+*/
+
+
+
 
 typedef enum _PS_PROTECTED_TYPE {
     PsProtectedTypeNone = 0,
@@ -90,6 +97,13 @@ typedef struct _PS_PROTECTION {
     };
 } PS_PROTECTION, * PPS_PROTECTION;
 
+NTKERNELAPI PS_PROTECTION* NTAPI PsGetProcessProtection(
+    _In_ PEPROCESS Process
+);
+
+HANDLE NTAPI PsGetProcessInheritedFromUniqueProcessId(
+    _In_ PEPROCESS Process
+);
 
 
 typedef struct _REG_RENAME_VALUE_KEY_INFORMATION {
@@ -247,6 +261,40 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
     },
 
     {
+    .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\RegFilter"),
+    .ValueName = RTL_CONSTANT_STRING(L"ImagePath"),
+    .KeyPathUpper = {0},
+    .ValueNameUpper = {0},
+    .Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE,
+    .Hash = 0
+},
+{
+    .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\ControlSet001\\Services\\RegFilter"),
+    .ValueName = RTL_CONSTANT_STRING(L"ImagePath"),
+    .KeyPathUpper = {0},
+    .ValueNameUpper = {0},
+    .Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE,
+    .Hash = 0
+},
+
+{
+    .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\RegFilter"),
+    .ValueName = RTL_CONSTANT_STRING(L"Type"),
+    .KeyPathUpper = {0},
+    .ValueNameUpper = {0},
+    .Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE,
+    .Hash = 0
+},
+{
+    .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SYSTEM\\ControlSet001\\Services\\RegFilter"),
+    .ValueName = RTL_CONSTANT_STRING(L"Type"),
+    .KeyPathUpper = {0},
+    .ValueNameUpper = {0},
+    .Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE,
+    .Hash = 0
+},
+
+    {
     .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"),
     .ValueName = RTL_CONSTANT_STRING(L"EnableLUA"),
     .KeyPathUpper = {0},
@@ -362,7 +410,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
@@ -371,7 +419,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
@@ -492,7 +540,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
@@ -500,7 +548,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Processes"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
@@ -508,7 +556,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Extensions"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
@@ -762,7 +810,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Exclusions\\Paths"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
@@ -770,7 +818,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Exclusions\\Processes"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
@@ -778,7 +826,7 @@ static REGISTRY_PROTECTION_ENTRY g_UnifiedProtections[] = {
 .KeyPath = RTL_CONSTANT_STRING(L"\\REGISTRY\\MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Exclusions\\Extensions"),
 .ValueName = RTL_CONSTANT_STRING(L"*"),
 .KeyPathUpper = {0}, .ValueNameUpper = {0},
-.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD | PROTECT_FLAG_ACCESS,
+.Flags = PROTECT_FLAG_MODIFY | PROTECT_FLAG_CREATE | PROTECT_FLAG_WILDCARD,
 .Hash = 0
 },
 
