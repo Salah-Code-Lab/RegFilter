@@ -11,7 +11,7 @@ These Updates had been Published
 
 Testing Results: Driver in the test Handled 127 Million Operations the test was stopped Due to the Time of my Patience 
 
-* Performance sustained improvement is around ~60% than before 
+* Performance sustained improvement is around ~60% More than before 
 
 NOTE: 
 
