@@ -4,7 +4,6 @@
 * Fixed The Recursive Protections and it works again
 * Replaced recursive O(n) scan with dual-hash O(1) wildcard matching
 * Less False Positives on the Services key now 
-* Deletions via SCM work now 
 * Addressed a Fix for Initialize Protections not looping correctly 
 
 These Updates had been Published
