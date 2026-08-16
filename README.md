@@ -161,7 +161,7 @@ This was tested on a custom executable that writes constantly with 128 threads (
 1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
 2. Hyper-V must be disabled on Host because it was a Limiter for VMWare, the results will be different if Hyper-V is enabled on Host.<br>
 3. The VM Specs Were:<br>
-<code>CPU</code>: Optional Depending on your Choice, My Tests used 6 cores as my main machine (2.5GHz, 12 vCPUs, 6 Cores, 12 Threads Intel Core I5, 10th gen 10500H)<br>
+<code>CPU</code>: Optional Depending on your Choice, My Tests used 6 cores  but the CPU Specs of mine are:(2.5GHz, 12 vCPUs, 6 Cores, 12 Threads Intel Core I5, 10th gen 10500H)<br>
 <code>RAM</code>: 8GB can be less though<br>
 <code>Virtualized CPU Counters</code>: True can be false as well i didn't notice that much of a difference across both(needs Hyper-V on host OFF)<br>
 
