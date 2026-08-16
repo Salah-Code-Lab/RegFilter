@@ -147,6 +147,17 @@ This was tested on a custom executable that writes constantly with 128 threads (
 <code>RAM</code>: 8GB can be less though<br>
 <code>Virtualized CPU Counters</code>: True can be false as well i didn't notice that much of a difference across both(needs Hyper-V on host OFF)<br>
 
+about the 140k Max ops per second just Note
+Results can differ from It will so take it as you will 
+you may achieve it or you may achieve 120k or 110k or even 100k 
+to me that happened multiple times 140k is just the best i had personally seen
+a Video of Demonstration and Explanation had been recorded for 
+* Protected Paths,
+* demonstration of actual speed response, 
+* Mirrored paths and Protecting them,
+* And the test was Ran until my CPU began to Thermal Throttle when it reached 95 Celsius the Test reached about 55Million Operations done anyway more than enough Proof 
+The Video will be edited and Published on my [YT Channel](https://www.youtube.com/@Salah-Code-Lab)<br>
+there is no Schedule only when it is ready it will be published because i don't promise anything
 
 
 > some parts had been removed because i felt they were marketing i hate that i don't love that attitude so take it if you will RegFilter responds in the Single Digits in Microseconds
