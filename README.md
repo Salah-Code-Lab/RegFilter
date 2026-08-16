@@ -1,3 +1,19 @@
+
+## QoL fixes: Pending Publish after Verification
+ChkInt had been Enhanced to a better version 
+Fixed The Recursive Protections and it works 
+Wildcard Paths are now O(1) instead of O(n)
+Less False Positives on the Services key now 
+Deletions via SCM work now 
+Addressed a Fix for Initialize Protections not looping correctly 
+
+These Updates will be Published After Verifying the Driver and Edge cases 
+
+Expected Time Until Publish is 4 Hours to 12 hours from now 
+
+Testing is in Progress
+
+
 # RegFilter
 
 RegFilter is a kernel mode registry protection driver for Windows.
