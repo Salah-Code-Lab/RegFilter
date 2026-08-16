@@ -132,36 +132,42 @@ bcdedit /set testsigning on
 
 
 
-## Additional Info: 
+## Additional Info (With QoL Fixes): 
 On a 6 Core VM with Hyper-V on host Off<br>
 with Virtualization of CPU Counters 
-RegFilter can achieve a max of <code>86k</code> Reg Operations per second<br>
+RegFilter can achieve a max of <code>140k</code> Reg Operations per second<br>
 in that scenario the silicon in that test is the Bottle Neck not the driver
-other tests which were conducted on the "Beast" show the limit of RegFilter which had been tested on a Core i9 14900HX machine with 32 Logical Processors<br>
-<code>160k</code> Reg Ops per second, without utilizing the full Capabilities of the CPU<br>
 the driver won't be Optimized further.<br>
-since it is already fast gaining a maximum response time of Mere microseconds (around 6.25 Microseconds though is not constantly consistant, it is user side not kernel side so it isn't accurate it includes CM aquiring locks time, returning to userland so userland API dominate while we want to focus on the driver Return time and not the whole Chain of execution but perhaps the driver responds in about 3 microseconds but i am unsure additional testing is needed).<br>
+since it is already fast gaining a maximum response time of Mere microseconds (around 7.1 Microseconds on a I5 10th Gen though is not constantly consistent, it is user side not kernel side so it isn't accurate it includes CM acquiring locks time, returning to userland so userland API dominate while we want to focus on the driver Return time and not the whole Chain of execution but perhaps the driver responds in about 5 microseconds but i am unsure additional testing is needed).<br>
 These tests were conducted with the Win11 Version and not the Win10 Version<br>
-oh, i almost forgot the build had been slightly edited and the flags 
-/Oy (Omit Frame Pointers), /O2 (Maxamize Speed), /Ot (favor speed)<br>
-from these testings the driver is roughly ~5x times to ~10x times faster in response than Other EDR solutions<br>
-but EDR solutions does have some other solutions that are complete and not just compound unlike RegFilter which is specialized in CM's subsystem only<br>
-This was tested on a Custom Executable that writes constantly with a total of 128 threads 64 for HKLM 64 for HKCU 
-the tool will not be published for obvious reasons (Abuse, DoS, Other Malicious Usage)<br>
-but one thing to take into note is that the performance will get lower and lower due to heat but if anyone was able to prove me wrong i am willing to be wrong<br>
-because i had laptops not workstations so they are not the best in cooling even the <code>165k</code> max can be wrong so if anyone can test on a desktop 
-it would be pretty much appreciated
+oh, i almost forgot the build is the Default with the Updated QoL
+
+Now when the driver was tested i ran well more than 217 Million Operations they include Write And Deletions<br>
+Stability Shouldn't be an issue considering that Normally the OS does Maybe Hundreds of thousands in a day<br>
+so to out buffer the 217 Million you'd need Months unless if there was something that would act abnormally and i didn't account for it<br>
+as i said before i am not Megamind or Superman to account for every single possible Edge case in the World<br>
+
+From these tests, the driver is roughly 12x to 15x faster in response than fast EDR solutions, and 30x to 80x faster than typical or heavy EDR solutions.<br>
+Over ~60% increase in Response time than the old version of the driver<br>
+
+
+
+
+But EDR solutions have broader coverage they monitor the entire system, not just the Configuration Manager subsystem. RegFilter is specialized: it does one thing (registry protection) and does it with maximum efficiency. It is not a complete EDR replacement. It is a component that outperforms EDRs in its specific domain.
+
+This was tested on a custom executable that writes constantly with 128 threads (64 for HKLM, 64 for HKCU). The tool will not be published for obvious reasons (abuse, DoS, other malicious usage).
 
 <mark>To Conduct this test here is how you can set the Environment</mark>
 1. First this was a Debloated VM with Microwin results may differ with ones that aren't debloated<br>
 2. Hyper-V must be disabled on Host because it was a Limiter for VMWare, the results will be different if Hyper-V is enabled on Host.<br>
 3. The VM Specs Were:<br>
-<code>CPU</code>: Optional Depending on your Choice, My Testings used 6 cores as my main machine and the other was borrowed and set accordingly<br>
+<code>CPU</code>: Optional Depending on your Choice, My Tests used 6 cores as my main machine (2.5GHz, 12 vCPUs, 6 Cores, 12 Threads Intel Core I5, 10th gen 10500H)<br>
 <code>RAM</code>: 8GB can be less though<br>
-<code>Virtualized CPU Counters</code>: True (needs Hyper-V on host OFF)<br>
+<code>Virtualized CPU Counters</code>: True can be false as well i didn't notice that much of a difference across both(needs Hyper-V on host OFF)<br>
 
-MATH TIME (OLD Pending Updates): 
-in the current data RegFilter Takes about 6.25 Microseconds lets say 7 microseconds 
+MATH TIME: 
+According to the Benchmarks on the I5
+in the current data RegFilter Takes 7 microseconds to Respond 
 picture 3 scenarios 
 lets assume a Fast EDR, Typical EDR, Heavy EDR
 if a Fast EDR Registry Filter is ~50 microseconds fast, if a typical EDR Registry Filter is ~100 Microseconds fast, and if a Heavy EDR Registry Filter is ~250 Microseconds fast
