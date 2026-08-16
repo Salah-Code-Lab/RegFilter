@@ -34,9 +34,7 @@ Four stage pipeline on every registry operation:
 Stage 1 is a DJB2 hash table lookup. O(1). Exact match keys 
 get hashed on load and checked instantly. Match means block.
 
-Stage 2 is a linear recursive scan for wildcard entries. 
-These can't be hashed since the incoming path is longer than 
-the stored prefix. Only runs if stage 1 misses.
+Stage 2 is a secondary hash lookup for wildcard entries. Wildcard entries are hashed by key path only (no value name), allowing O(1) matching for any value under this key.
 
 Stage 3 is caller context. ControlHiveAccessEx() which calls ChkInt2() checks if the caller is 
 PPL or Light PPL protected, or if it's services.exe parented 
