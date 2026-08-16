@@ -50,7 +50,7 @@ Stage 2 is a linear recursive scan for wildcard entries.
 These can't be hashed since the incoming path is longer than 
 the stored prefix. Only runs if stage 1 misses.
 
-**REMOVED You Can Still Add it though** Stage 3 is caller context. ChkInt() checks if the caller is 
+**REMOVED You Can Still Add it though** Stage 3 is caller context. ChkInt2() checks if the caller is 
 PPL or Light PPL protected, or if it's services.exe parented 
 by wininit.exe. Trusted callers get through. Everyone else 
 goes through ControlHiveAccess which blocks userland writes 
@@ -160,7 +160,7 @@ it would be pretty much appreciated
 <code>RAM</code>: 8GB can be less though<br>
 <code>Virtualized CPU Counters</code>: True (needs Hyper-V on host OFF)<br>
 
-MATH TIME: 
+MATH TIME (OLD Pending Updates): 
 in the current data RegFilter Takes about 6.25 Microseconds lets say 7 microseconds 
 picture 3 scenarios 
 lets assume a Fast EDR, Typical EDR, Heavy EDR
