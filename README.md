@@ -38,11 +38,14 @@ Stage 2 is a linear recursive scan for wildcard entries.
 These can't be hashed since the incoming path is longer than 
 the stored prefix. Only runs if stage 1 misses.
 
-**REMOVED You Can Still Add it though** Stage 3 is caller context. ChkInt2() checks if the caller is 
+Stage 3 is caller context. ControlHiveAccessEx() which calls ChkInt2() checks if the caller is 
 PPL or Light PPL protected, or if it's services.exe parented 
 by wininit.exe. Trusted callers get through. Everyone else 
 goes through ControlHiveAccess which blocks userland writes 
 to the services hive entirely.
+
+I Would recommend removing it for daily drivers
+
 
 Stage 3-4 is HKCU filtering. Resolves the caller SID from the 
 thread impersonation token first to catch ImpersonateLoggedOnUser 
