@@ -15,7 +15,19 @@ Testing is in Progress
 
 Testing Progress: Driver in the test Handled 127 Million Operations the test was stopped Due to the Time of my Patience 
 
-* Performance sustained improvement is around 34-40% than before 
+* Performance sustained improvement is around ~60% than before 
+NOTE 
+
+* After Doing some Adjustments to the Core count and amount 
+on 6 Cores in VMWare with no Hyper-V present 
+the Performance increase is about 60% And Not the 34-40% i assumed back then 
+And that Includes the new ChkInt2 and ControlHiveAccessEx that were implemented newly
+But i am still unsure of their Stability 
+so the New batch will be ran for about a another 100 Million Write Operations being targeted
+then Placement Optimizations will be done and then the Driver will be Published
+
+
+
 
 * Additional testing will be done before Publishing
 
