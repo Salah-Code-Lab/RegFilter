@@ -119,7 +119,7 @@ NTSTATUS AddToHashTable(_Inout_ PHASH_TABLE Table, ULONG Hash, ULONG EntryIndex)
 
     ULONG BucketIndex = Hash % HASH_TABLE_SIZE;
 
-    PHASH_NODE NewNode = (PHASH_NODE) POOL_ALLOC(sizeof(HASH_NODE), DRIVER_TAG);
+    PHASH_NODE NewNode = (PHASH_NODE)POOL_ALLOC(sizeof(HASH_NODE), DRIVER_TAG);
     if (!NewNode) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -146,30 +146,38 @@ NTSTATUS InitializeProtections()
 
     status = InitializeHashTable(&g_HashTableUnified, HASH_TABLE_SIZE);
     if (!NT_SUCCESS(status))
+    {
+        DbgPrint("[RegF] InitializeProtections failed: 0x%08X\n", status);
         return status;
+    }
 
     for (ULONG u = 0; u < UNIFIED_PROTECTION_COUNT; u++)
     {
         PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[u];
 
+
         status = FastUnicodeToUpper(&entry->KeyPath, &entry->KeyPathUpper);
         if (!NT_SUCCESS(status))
+        {
             return status;
+        }
+
 
         if (entry->ValueName.Buffer)
         {
             status = FastUnicodeToUpper(&entry->ValueName, &entry->ValueNameUpper);
             if (!NT_SUCCESS(status))
+            {
                 return status;
+            }
         }
-
-        // Wildcard entries are handled by recursive scan only
-        // They cannot be hash matched since the incoming path will be longer
-        if (entry->Flags & PROTECT_FLAG_WILDCARD)
-            continue;
-
-        entry->Hash = HashEntry(&entry->KeyPathUpper,
-            entry->ValueNameUpper.Buffer ? &entry->ValueNameUpper : NULL);
+        if (entry->Flags & PROTECT_FLAG_WILDCARD) {
+            entry->Hash = HashEntry(&entry->KeyPathUpper, NULL);
+        }
+        else {
+            entry->Hash = HashEntry(&entry->KeyPathUpper,
+                entry->ValueNameUpper.Buffer ? &entry->ValueNameUpper : NULL);
+        }
 
         status = AddToHashTable(&g_HashTableUnified, entry->Hash, u);
         if (!NT_SUCCESS(status))
@@ -220,21 +228,30 @@ BOOLEAN LookupHashTable(
             continue;
         }
 
-        // Value check 
-        if (entry->ValueNameUpper.Buffer && !(entry->Flags & PROTECT_FLAG_WILDCARD))
+        // In LookupHashTable, replace the value check block with:
+        if (entry->ValueNameUpper.Buffer)
         {
-            if (!Value || !Value->Buffer)
+            // Entry has a value name requirement
+            if (entry->Flags & PROTECT_FLAG_WILDCARD)
             {
-                node = node->Next;
-                continue;
+                // Wildcard entry: matches any value, skip value check
             }
-
-            if (!RtlEqualUnicodeString(Value, &entry->ValueNameUpper, TRUE))
+            else
             {
-                node = node->Next;
-                continue;
+                // Exact value match required
+                if (!Value || !Value->Buffer)
+                {
+                    node = node->Next;
+                    continue;
+                }
+                if (!RtlEqualUnicodeString(Value, &entry->ValueNameUpper, TRUE))
+                {
+                    node = node->Next;
+                    continue;
+                }
             }
         }
+        // If entry has no ValueNameUpper.Buffer, no value check needed
 
         *EntryIndex = node->EntryIndex;
         return TRUE;
@@ -265,4 +282,3 @@ VOID CleanupHashTable(_Inout_ PHASH_TABLE Table)
 
     Table->Count = 0;
 }
-
