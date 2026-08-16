@@ -1,5 +1,5 @@
 
-## QoL fixes: Pending Publish after Verification
+## QoL fixes: (Published)
 * ChkInt had been Enhanced to a better version
 * Fixed The Recursive Protections and it works again
 * Replaced recursive O(n) scan with dual-hash O(1) wildcard matching
@@ -7,16 +7,13 @@
 * Deletions via SCM work now 
 * Addressed a Fix for Initialize Protections not looping correctly 
 
-These Updates will be Published After Verifying the Driver and Edge cases 
+These Updates had been Published
 
-Expected Time Until Publish is 4 Hours to 12 hours from now 
-
-Testing is in Progress
-
-Testing Progress: Driver in the test Handled 127 Million Operations the test was stopped Due to the Time of my Patience 
+Testing Results: Driver in the test Handled 127 Million Operations the test was stopped Due to the Time of my Patience 
 
 * Performance sustained improvement is around ~60% than before 
-NOTE 
+
+NOTE: 
 
 * After Doing some Adjustments to the Core count and amount 
 on 6 Cores in VMWare with no Hyper-V present 
@@ -26,12 +23,8 @@ But i am still unsure of their Stability
 so the New batch will be ran for about a another 100 Million Write Operations being targeted
 then Placement Optimizations will be done and then the Driver will be Published
 
-
-
-
-* Additional testing will be done before Publishing
-
-* Extended and Standard Testing is finished Organizing files and code before Publishing...
+* MATH TIME section needs to be rewritten
+but i am already exhausted i had been addressing these issues and testing for long enough i will be back in a hour or two
 
 
 # RegFilter
