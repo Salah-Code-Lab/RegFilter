@@ -788,7 +788,7 @@ NTSTATUS DriverEntry(
 )
 {
     UNREFERENCED_PARAMETER(RegistryPath);
-    NTSTATUS status = STATUS_SUCCESS;
+    NTSTATUS status;
 
     // Unified protections
     status = InitializeProtections();
