@@ -18,8 +18,6 @@ NTSTATUS GetCurrentUserSidString(
     PTOKEN_USER user = NULL;
     PACCESS_TOKEN token = NULL;
     BOOLEAN isImpersonation = FALSE;
-    if (KeGetCurrentIrql() != PASSIVE_LEVEL)
-        return STATUS_UNSUCCESSFUL;
 
     // Check thread impersonation token first
     // This catches attackers using ImpersonateLoggedOnUser
