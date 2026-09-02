@@ -466,11 +466,16 @@ ControlHiveAccessEx(
     _In_ ULONG OperationFlags
 )
 {
+    UNICODE_STRING sidString = { 0 };
     BOOLEAN isKernel = (ExGetPreviousMode() == KernelMode);
     BOOLEAN isSystem = PsIsSystemThread(PsGetCurrentThread());
+    HANDLE pid = PsGetCurrentProcessId();
+    PEPROCESS process = PsGetCurrentProcess();
 
     if (isKernel || isSystem)
         return STATUS_SUCCESS;
+
+
 
     if (ChkInt2())
         return STATUS_SUCCESS;
@@ -482,7 +487,7 @@ ControlHiveAccessEx(
     {
         if (RtlPrefixUnicodeString(&g_ForbiddenHivePaths[i], keyPathUpper, TRUE))
         {
-          
+            DbgPrint("[RegF] ControlHiveAccessEx: denied for unauthorized caller. Flags:%lx Process:%p, PID:%p Path:%wZ\n", OperationFlags, process, pid, keyPathUpper);
             return STATUS_OBJECT_PATH_NOT_FOUND;
         }
     }
@@ -500,6 +505,9 @@ static NTSTATUS RegistryCallback(
     _In_ PVOID Argument2
 )
 {
+    if (*InitSafeBootMode > 0)
+        return STATUS_SUCCESS;
+
     UNREFERENCED_PARAMETER(Context);
 
     REG_NOTIFY_CLASS notifyClass = (REG_NOTIFY_CLASS)(ULONG_PTR)Argument1;
@@ -566,8 +574,7 @@ static NTSTATUS RegistryCallback(
         return STATUS_SUCCESS;
     }
 
-    if (*InitSafeBootMode > 0)
-        return STATUS_SUCCESS;
+ 
 
     if (!registryObject)
         return STATUS_SUCCESS;
@@ -607,6 +614,8 @@ static NTSTATUS RegistryCallback(
 
     // O(1) Wildcard matching and Exact matching
     //Exact match here
+    HANDLE pid = PsGetCurrentProcessId();
+    PEPROCESS process = PsGetCurrentProcess();
     ULONG keyHash = HashEntry(&keyPathUpper, valueForHash);
     BOOLEAN found = LookupHashTable(&g_HashTableUnified, keyHash, &entryIndex, opFlags, valueForHash);
 
@@ -627,7 +636,9 @@ static NTSTATUS RegistryCallback(
 
         if ((entryEffective & opFlags) != 0)
         {
+            
             result = STATUS_OBJECT_NAME_NOT_FOUND;
+            DbgPrint("[RegF] HKLM Hash Match Forbidden Modification Flags:%lx Result: 0x%08X, Process:%p, PID:%p, Path:%wZ\n", opFlags, result, process, pid, keyPathUpper);
             goto cleanup;
         }
     }
@@ -698,7 +709,9 @@ static NTSTATUS RegistryCallback(
             ULONG hkcuEffective = entry->Flags & ~(PROTECT_FLAG_WILDCARD | PROTECT_FLAG_SID);
             if ((hkcuEffective & opFlags) != 0)
             {
+               
                 result = STATUS_OBJECT_NAME_NOT_FOUND;
+                DbgPrint("[RegF] HKCU Match Forbidden Modification Flags:%lx Result: 0x%08X, Process:%p, PID:%p, Path:%wZ\n", opFlags, result, process, pid, hkcuFullPathUpper);
             }
 
             RtlFreeUnicodeString(&sidString);
@@ -723,15 +736,16 @@ static VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject)
 {
 
     UNREFERENCED_PARAMETER(DriverObject);
-
+    DbgPrint("DriverUnload had been Called");
 
     if (g_Cookie.QuadPart != 0)
     {
+        DbgPrint("NULLING the Registeration Cookie");
         CmUnRegisterCallback(g_Cookie);
         g_Cookie.QuadPart = 0;
     }
 
-
+    DbgPrint("Freeing Allocated memory and Paths HKLM");
     for (ULONG i = 0; i < UNIFIED_PROTECTION_COUNT; i++)
     {
         PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[i];
@@ -746,10 +760,11 @@ static VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject)
             entry->ValueNameUpper.Buffer = NULL;
         }
     }
-
+    DbgPrint("Freeing The Hash Table");
     CleanupHashTable(&g_HashTableUnified);
 
     // Zero the HKCU protections to remove any sensitive data like SIDs from memory
+    DbgPrint("Freeing Allocated memory and Paths HKCU");
     for (ULONG i = 0; i < HKCU_PROTECTION_COUNT; i++)
     {
         PREGISTRY_PROTECTION_ENTRY entry = &g_HKCUProtections[i];
@@ -772,7 +787,7 @@ static VOID DriverUnload(_In_ PDRIVER_OBJECT DriverObject)
     g_Cookie.QuadPart = 0;
 
 
-
+    DbgPrint("Driver Unload Succeeded");
 
 
 }
@@ -787,13 +802,18 @@ NTSTATUS DriverEntry(
     _In_ PUNICODE_STRING RegistryPath
 )
 {
+
+
+   
     UNREFERENCED_PARAMETER(RegistryPath);
     NTSTATUS status;
 
     // Unified protections
     status = InitializeProtections();
-    if (!NT_SUCCESS(status))
+    if (!NT_SUCCESS(status)) {
+        DbgPrint("Failed to Initialize Protections Status: 0x%08X\n", status);
         return status;
+    }
 
     for (ULONG i = 0; i < HKCU_PROTECTION_COUNT; i++) {
 
@@ -822,6 +842,8 @@ NTSTATUS DriverEntry(
 
     if (!NT_SUCCESS(status))
     {
+        DbgPrint("Failed to Register the Callback Status: 0x%08X\n", status);
+        DbgPrint("Freeing Allocated Memory");
         // Free Unified upcased buffers
         for (ULONG i = 0; i < UNIFIED_PROTECTION_COUNT; i++)
         {
@@ -855,19 +877,23 @@ NTSTATUS DriverEntry(
         }
 
         // Free hash nodes
+        DbgPrint("Freeing the Hash Table");
         CleanupHashTable(&g_HashTableUnified);
 
+        DbgPrint("0x%08X\n", status);
         return status;
     }
 
-
+    if (*InitSafeBootMode > 0) {
+        DbgPrint("Safe Mode had been detected Unload is Authorized");
+        DriverObject->DriverUnload = DriverUnload;
+        return STATUS_SUCCESS;
+    }
 
     // Register unload last only reachable if everything succeeded
     // This is to prevent Malicious unloads in normal mode 
-    // though the Other build RegFilter can be Unloaded Manually
-    if (*InitSafeBootMode > 0)
-        DriverObject->DriverUnload = DriverUnload;
-    else
+    DbgPrint("Safe Boot Mode is False Unload is Not Authorized");
+    DbgPrint("Driver Load Succeeded");
         DriverObject->DriverUnload = NULL;
 
     return STATUS_SUCCESS;
