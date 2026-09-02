@@ -154,11 +154,14 @@ NTSTATUS InitializeProtections()
     for (ULONG u = 0; u < UNIFIED_PROTECTION_COUNT; u++)
     {
         PREGISTRY_PROTECTION_ENTRY entry = &g_UnifiedProtections[u];
+        DbgPrint("[RegF] INIT[%lu]: keypath=%wZ valname=%wZ flags=%X\n",
+            u, &entry->KeyPath, &entry->ValueName, entry->Flags);
 
 
         status = FastUnicodeToUpper(&entry->KeyPath, &entry->KeyPathUpper);
         if (!NT_SUCCESS(status))
         {
+            DbgPrint("[RegF] FastUnicodeToUpper(KeyPath) failed: 0x%08X\n", status);
             return status;
         }
 
@@ -168,6 +171,7 @@ NTSTATUS InitializeProtections()
             status = FastUnicodeToUpper(&entry->ValueName, &entry->ValueNameUpper);
             if (!NT_SUCCESS(status))
             {
+                DbgPrint("[RegF] FastUnicodeToUpper(Value) failed: 0x%08X\n", status);
                 return status;
             }
         }
